@@ -1,7 +1,3 @@
-## 0.2.1
-* fix Android 6.0 install error.
-## 0.2.0
-* will power and awesome .
 ## 0.1.8
 * adapter FlutterPlugin .
 ## 0.1.7

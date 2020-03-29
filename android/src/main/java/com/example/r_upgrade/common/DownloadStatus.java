@@ -5,9 +5,7 @@ public enum DownloadStatus {
     STATUS_PENDING(1),
     STATUS_RUNNING(2),
     STATUS_SUCCESSFUL(3),
-    STATUS_FAILED(4),
-    STATUS_CANCEL(5);
-
+    STATUS_FAILED(4);
     private int value;
 
     DownloadStatus(int value) {

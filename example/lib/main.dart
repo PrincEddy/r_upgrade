@@ -56,15 +56,6 @@ class _MyAppState extends State<MyApp> {
   Widget _buildAndroidPlatformWidget() => ListView(
         children: <Widget>[
           _buildDownloadWindow(),
-          Divider(),
-          ListTile(
-            title: Text(
-              '更新相关',
-              style: Theme.of(context).textTheme.title.copyWith(
-                    fontWeight: FontWeight.w600,
-                  ),
-            ),
-          ),
           ListTile(
             title: Text('开始全量更新'),
             onTap: () async {
@@ -77,13 +68,9 @@ class _MyAppState extends State<MyApp> {
 
               if (!await canReadStorage()) return;
 
-              id = await RUpgrade.upgrade(
-//                "http://192.168.1.105:8888/files/static/kuan.apk",
-//                  'http://dl-cdn.coolapkmarket.com/down/apk_file/2020/0308/Coolapk-v10.0.3-2003081-coolapk-app-release.apk?_upt=b210caeb1585012557',
-                  'https://mydata-1252536312.cos.ap-guangzhou.myqcloud.com/r_upgrade.apk',
-                  apkName: 'r_upgrade.apk',
-                  isAutoRequestInstall: isAutoRequestInstall,
-                  useDownloadManager: false);
+              id = await RUpgrade.upgrade('http://crm.532t.com/android1009.apk',
+                  apkName: 'android1009.apk',
+                  isAutoRequestInstall: isAutoRequestInstall);
               setState(() {});
             },
           ),
@@ -111,53 +98,7 @@ class _MyAppState extends State<MyApp> {
             },
             title: Text('下载完进行安装'),
           ),
-          ListTile(
-            title: Text('继续更新'),
-            onTap: () async {
-              if (id == null) {
-                _state.currentState
-                    .showSnackBar(SnackBar(content: Text('当前没有ID可升级')));
-                return;
-              }
-              await RUpgrade.upgradeWithId(id);
-              setState(() {});
-            },
-          ),
-          ListTile(
-            title: Text('暂停更新'),
-            onTap: () async {
-              bool isSuccess = await RUpgrade.pause(id);
-              if (isSuccess) {
-                _state.currentState
-                    .showSnackBar(SnackBar(content: Text('暂停成功')));
-                setState(() {});
-              }
-              print('cancel');
-            },
-          ),
-          ListTile(
-            title: Text('取消更新'),
-            onTap: () async {
-              bool isSuccess = await RUpgrade.cancel(id);
-              if (isSuccess) {
-                _state.currentState
-                    .showSnackBar(SnackBar(content: Text('取消成功')));
-                id = null;
-                isClickHotUpgrade = null;
-                setState(() {});
-              }
-              print('cancel');
-            },
-          ),
           Divider(),
-          ListTile(
-            title: Text(
-              '热更新相关',
-              style: Theme.of(context).textTheme.title.copyWith(
-                    fontWeight: FontWeight.w600,
-                  ),
-            ),
-          ),
           ListTile(
             title: Text('开始热更新'),
             onTap: () async {
@@ -169,9 +110,8 @@ class _MyAppState extends State<MyApp> {
               isClickHotUpgrade = true;
 
               if (!await canReadStorage()) return;
-              id = await RUpgrade.upgrade(
-                  'https://mydata-1252536312.cos.ap-guangzhou.myqcloud.com/r_upgrade.zip',
-                  apkName: 'r_upgrade.zip',
+              id = await RUpgrade.upgrade('http://crm.532t.com/android1009.apk',
+                  apkName: 'android1009.apk',
                   isAutoRequestInstall: isAutoRequestInstall);
               setState(() {});
             },
@@ -204,72 +144,22 @@ class _MyAppState extends State<MyApp> {
           ),
           Divider(),
           ListTile(
-            title: Text(
-              '历史相关',
-              style: Theme.of(context).textTheme.title.copyWith(
-                    fontWeight: FontWeight.w600,
-                  ),
-            ),
-          ),
-          ListTile(
-            title: Text('获取最后一次下载的ID'),
-            trailing: lastId != null
-                ? Text(
-                    lastId.toString(),
-                    style: Theme.of(context).textTheme.subtitle.copyWith(
-                          color: Colors.grey,
-                        ),
-                  )
-                : null,
+            title: Text('取消更新'),
             onTap: () async {
-              lastId = await RUpgrade.getLastUpgradedId();
-              if (lastId == null) {
+              bool isSuccess = await RUpgrade.cancel(id);
+              if (isSuccess) {
                 _state.currentState
-                    .showSnackBar(SnackBar(content: Text('没有最后一次下载的ID')));
-                return;
+                    .showSnackBar(SnackBar(content: Text('取消成功')));
+                id = null;
+                isClickHotUpgrade = null;
+                setState(() {});
               }
-              setState(() {});
-            },
-          ),
-          ListTile(
-            title: Text('根据最后一次ID升级应用'),
-            onTap: () async {
-              if (lastId == null) {
-                _state.currentState
-                    .showSnackBar(SnackBar(content: Text('当前没有ID可升级')));
-                return;
-              }
-              await RUpgrade.upgradeWithId(lastId);
-              setState(() {});
-            },
-          ),
-          ListTile(
-            title: Text(
-              '查看最后一次ID的下载状态',
-            ),
-            trailing: lastStatus != null
-                ? Text(getStatus(lastStatus),
-                    style: Theme.of(context).textTheme.subtitle.copyWith(
-                          color: Colors.grey,
-                        ))
-                : null,
-            onTap: () async {
-              if (lastId == null) {
-                _state.currentState
-                    .showSnackBar(SnackBar(content: Text('当前没有ID可查')));
-                return;
-              }
-              lastStatus = await RUpgrade.getDownloadStatus(lastId);
-              setState(() {});
+              print('cancel');
             },
           ),
           Divider(),
         ],
       );
-
-  int lastId;
-
-  DownloadStatus lastStatus;
 
   @override
   Widget build(BuildContext context) {
@@ -289,13 +179,13 @@ class _MyAppState extends State<MyApp> {
   String _getAppBarText() {
     switch (version) {
       case 1:
-        return 'Normal version = $version ${id != null ? 'id = $id' : ''}';
+        return 'Normal version = $version';
       case 2:
-        return 'hot upgrade version = $version ${id != null ? 'id = $id' : ''}';
+        return 'hot upgrade version = $version';
       case 3:
-        return 'all upgrade version = $version ${id != null ? 'id = $id' : ''}';
+        return 'all upgrade version = $version';
     }
-    return 'unknow version  = $version ${id != null ? 'id = $id' : ''}';
+    return 'unknow version  = $version';
   }
 
   Widget _buildDownloadWindow() => Container(
@@ -318,10 +208,6 @@ class _MyAppState extends State<MyApp> {
                           height: 150,
                           width: 150,
                           child: CircleDownloadWidget(
-                            backgroundColor: snapshot.data.status ==
-                                    DownloadStatus.STATUS_SUCCESSFUL
-                                ? Colors.green
-                                : null,
                             progress: snapshot.data.percent / 100,
                             child: Center(
                               child: Text(
@@ -370,10 +256,6 @@ class _MyAppState extends State<MyApp> {
       return "下载中";
     } else if (status == DownloadStatus.STATUS_SUCCESSFUL) {
       return "下载成功";
-    } else if (status == DownloadStatus.STATUS_CANCEL) {
-      id = null;
-      isClickHotUpgrade = null;
-      return "下载取消";
     } else {
       id = null;
       isClickHotUpgrade = null;
@@ -416,10 +298,8 @@ class _MyAppState extends State<MyApp> {
 class CircleDownloadWidget extends StatelessWidget {
   final double progress;
   final Widget child;
-  final Color backgroundColor;
 
-  const CircleDownloadWidget(
-      {Key key, this.progress, this.child, this.backgroundColor})
+  const CircleDownloadWidget({Key key, this.progress, this.child})
       : super(key: key);
 
   @override
@@ -427,7 +307,7 @@ class CircleDownloadWidget extends StatelessWidget {
     return RepaintBoundary(
       child: CustomPaint(
         painter: CircleDownloadCustomPainter(
-          backgroundColor ?? Colors.grey[400],
+          Colors.grey[400],
           Theme.of(context).primaryColor,
           progress,
         ),

@@ -1,10 +1,20 @@
 package com.example.r_upgrade.method;
 
+import android.content.Context;
+import android.net.Uri;
+
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileReader;
+import java.io.InputStream;
 import java.util.Map;
+import android.app.DownloadManager;
+import android.util.Log;
 
 import io.flutter.plugin.common.MethodCall;
 import io.flutter.plugin.common.MethodChannel;
 
+import static android.content.ContentValues.TAG;
 import static com.example.r_upgrade.common.HotUpgradeManager.hotManager;
 import static com.example.r_upgrade.common.UpgradeManager.upgradeManager;
 
@@ -16,8 +26,7 @@ public enum RUpgradeMethodEnum implements IRUpgradeMethodHandler {
                     (Map<String, String>) call.argument("header"),
                     (String) call.argument("apkName"),
                     (Integer) call.argument("notificationVisibility"),
-                    (Boolean) call.argument("isAutoRequestInstall"),
-                    (Boolean) call.argument("useDownloadManager")));
+                    (Boolean) call.argument("isAutoRequestInstall")));
         }
     },
     cancel {
@@ -30,7 +39,11 @@ public enum RUpgradeMethodEnum implements IRUpgradeMethodHandler {
     install {
         @Override
         public void handler(MethodCall call, MethodChannel.Result result) {
-            result.success(upgradeManager.installApkById((Integer) call.argument("id")));
+            File myfile = new File((String) call.argument("id"));
+            Log.d(TAG,"***************Yesssss****************");
+            myfile.setReadable(true,false);
+            result.success(upgradeManager.install_apk(myfile));
+          //  result.success(upgradeManager.installApkById((int) call.argument("id")));
 
         }
     },
@@ -38,35 +51,9 @@ public enum RUpgradeMethodEnum implements IRUpgradeMethodHandler {
     hotUpgrade {
         @Override
         public void handler(MethodCall call, MethodChannel.Result result) {
-            result.success(hotManager.hotUpgrade((int) call.argument("id")));
+            result.success(hotManager.hotUpgrade((int)call.argument("id")));
 
         }
-    },
-    pause {
-        @Override
-        public void handler(MethodCall call, MethodChannel.Result result) {
-            result.success(upgradeManager.pause((Integer) call.argument("id")));
-        }
-    },
-    upgradeWithId{
-        @Override
-        public void handler(MethodCall call, MethodChannel.Result result) {
-            result.success(upgradeManager.upgradeWithId((Integer) call.argument("id")));
-        }
-    },
-    getDownloadStatus{
-        @Override
-        public void handler(MethodCall call, MethodChannel.Result result) {
-            result.success(upgradeManager.getDownloadStatus((Integer) call.argument("id")));
-
-        }
-    },
-    getLastUpgradedId {
-        @Override
-        public void handler(MethodCall call, MethodChannel.Result result) {
-            result.success(upgradeManager.getLastUpgradedId());
-        }
-    },
-
+    }
 
 }
